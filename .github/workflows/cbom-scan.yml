@@ -13,6 +13,7 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -31,7 +32,7 @@ jobs:
         uses: PQCA/cbomkit-action@v2.1.0
         id: cbom
         with:
-          language: python
+          entryPoint: "python"
 
       - name: Upload CBOM artifact
         uses: actions/upload-artifact@v4
