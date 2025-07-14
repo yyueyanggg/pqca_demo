@@ -1,11 +1,5 @@
-name: CBOM Generation (Python)
-
 on:
-  push:
-    branches:
-      - master
   workflow_dispatch:
-
 jobs:
   cbom-scan:
     runs-on: ubuntu-latest
@@ -13,28 +7,46 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-
+      
+      # Set up Python environment
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.10'
-
+          python-version: '3.x'  # or specify your Python version like '3.9'
+      
+      # Install Python dependencies if you have requirements.txt
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
-
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+          # If you use poetry, pipenv, or other dependency managers, adjust accordingly
+          # For poetry: pip install poetry && poetry install
+          # For pipenv: pip install pipenv && pipenv install
+      
+      # Optional: Run any setup or build steps your Python project needs
+      - name: Setup Python project
+        run: |
+          # Add any project-specific setup commands here
+          # For example, if you need to build wheels or compile extensions:
+          # python setup.py build_ext --inplace
+          echo "Python project setup complete"
+      
       - name: Create CBOM
         uses: PQCA/cbomkit-action@v2.1.0
         id: cbom
-
+        with:
+          # Specify the path to your Python files or project root
+          path: "."  # or specify specific Python files/directories
+          # You can also add language-specific parameters if supported
+          # language: python
+      
+      # Upload the generated CBOM as an artifact
       - name: Upload CBOM artifact
         uses: actions/upload-artifact@v4
-        with:
+        with: 
           name: "CBOM"
           path: ${{ steps.cbom.outputs.pattern }}
           if-no-files-found: warn
